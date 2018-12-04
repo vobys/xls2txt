@@ -4,7 +4,7 @@ This is a command line tool to convert XLS files to TXT files. It is based on th
 
 ## Build
 
-This project use the `CMAKE` and  to compile and generate the executable run the following command:
+This project use the [CMAKE](https://cmake.org/install/) and  to compile and generate the executable run the following command:
 
 ```shell
 mkdir cmake-build-release
