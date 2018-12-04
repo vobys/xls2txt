@@ -29,12 +29,12 @@ usage: xls2txt [-C cs] [-n sheetnum|-A] [-f] file.xls [X:X]
        xls2txt [-C cs] -l file.xls
        
  X:X     cell range (eg. A1:C5, D2:E)
- -l	     list sheets
+ -l      list sheets
  -n num  select sheet
- -A	     all sheets (\f separated)
- -C cs	 output charset (utf8 asc iso1 iso2), utf8 is default
- -f	     don't try to format numbers
- -a	     ascii output (same as -C asc)
+ -A      all sheets (\f separated)
+ -C cs   output charset (utf8 asc iso1 iso2), utf8 is default
+ -f      don't try to format numbers
+ -a      ascii output (same as -C asc)
 ```
 
 ## Scripts
