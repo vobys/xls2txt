@@ -1,7 +1,7 @@
 ######################
 # Project Specific
 ######################
-cmake-build-debug/
+cmake-build-*/
 
 ######################
 # Intellij

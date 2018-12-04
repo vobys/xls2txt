@@ -2,6 +2,18 @@
 
 This is a command line tool to convert XLS files to TXT files. It is based on the http://wizard.ae.krakow.pl/~jb/xls2txt/ code.
 
+## Build
+
+This project use the `CMAKE` and  to compile and generate the executable run the following command:
+
+```shell
+mkdir cmake-build-release
+cd cmake-build-release
+cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" ..
+cd ..
+cmake --build cmake-build-release --target xls2txt -- -j 4
+```
+
 ## Use
 
 To convert an XLS file to a TXT file use the following command:
