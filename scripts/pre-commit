@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if ! type "xls2txt" > /dev/null; then
+  echo 'Please install the xls2txt from https://github.com/vobys/xls2txt'
+  exit 1
+fi
+
+convert_all_xls()
+{
+  for file in `git diff --name-only --staged | grep '.xls'`; do
+    echo "Converting $(basename "$file" .xls).txt"
+    xls2txt -A -f ${file} > $1/$(basename "$file" .xls).txt
+    git add $1/
+  done
+}
+
+convert_all_xls ./txt
