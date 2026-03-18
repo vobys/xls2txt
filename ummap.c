@@ -15,7 +15,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <signal.h>
-#include <string.h> // ffs
+#include <string.h>
+#include <strings.h> // ffs (macOS: strings.h; Linux: string.h)
 #include "ummap.h"
 
 #pragma clang diagnostic push
@@ -42,9 +43,8 @@ static void um_sig(int n, siginfo_t *i, void *c) {
     unsigned long o;
 
     if (i->si_code == SEGV_ACCERR
-#ifdef __OpenBSD__  // XXX others too?
-        //#if #system(bsd)
-                || i->si_code == SEGV_MAPERR
+#if defined(__OpenBSD__) || defined(__APPLE__)
+        || i->si_code == SEGV_MAPERR
 #endif
             ) {
         list_t *l;
@@ -58,9 +58,21 @@ static void um_sig(int n, siginfo_t *i, void *c) {
     return;
 
     found:
-    if (um->handler(um, (char *) um->addr + (o & -um_page_sz)) >= 0)
+    if (um->handler(um, (char *) um->addr + (o & -um_page_sz)) >= 0) {
+        /* Re-arm SIGSEGV and SIGBUS if defined */
         sigaction(SIGSEGV, &um_sa, 0);
+#ifdef SIGBUS
+        sigaction(SIGBUS, &um_sa, 0);
+#endif
+    }
 }
+
+#ifdef SIGBUS
+/* SIGBUS may be raised instead of SIGSEGV when defined */
+static void um_bus(int n, siginfo_t *i, void *c) {
+    um_sig(n, i, c);
+}
+#endif
 
 int um_access_page(void *p) {
 #if 0
@@ -86,6 +98,13 @@ int um_map(struct ummap *um) {
         return -1;
     um->addr = p;
     v = sigaction(SIGSEGV, &um_sa, 0);
+#ifdef SIGBUS
+    if (v >= 0) {
+        struct sigaction bus_sa = um_sa;
+        bus_sa.sa_sigaction = um_bus;
+        sigaction(SIGBUS, &bus_sa, 0);
+    }
+#endif
     if (v >= 0) list_add(&maps, &um->list);
     else munmap(p, (size_t) um->size);
     return v;
