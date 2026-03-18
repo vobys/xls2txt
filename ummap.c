@@ -43,7 +43,9 @@ static void um_sig(int n, siginfo_t *i, void *c) {
     unsigned long o;
 
     if (i->si_code == SEGV_ACCERR
-        || i->si_code == SEGV_MAPERR  /* macOS, OpenBSD and others */
+#if defined(__OpenBSD__) || defined(__APPLE__)
+        || i->si_code == SEGV_MAPERR
+#endif
             ) {
         list_t *l;
         for (l = maps.next; l != &maps; l = l->next) {
@@ -57,7 +59,7 @@ static void um_sig(int n, siginfo_t *i, void *c) {
 
     found:
     if (um->handler(um, (char *) um->addr + (o & -um_page_sz)) >= 0) {
-        /* Re-arm both SIGSEGV and SIGBUS (macOS may raise either) */
+        /* Re-arm SIGSEGV and SIGBUS if defined */
         sigaction(SIGSEGV, &um_sa, 0);
 #ifdef SIGBUS
         sigaction(SIGBUS, &um_sa, 0);
@@ -66,7 +68,7 @@ static void um_sig(int n, siginfo_t *i, void *c) {
 }
 
 #ifdef SIGBUS
-/* macOS raises SIGBUS instead of SIGSEGV on some memory access faults */
+/* SIGBUS may be raised instead of SIGSEGV when defined */
 static void um_bus(int n, siginfo_t *i, void *c) {
     um_sig(n, i, c);
 }
